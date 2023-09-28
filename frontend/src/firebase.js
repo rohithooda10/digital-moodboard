@@ -2,18 +2,27 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { getAuth, storageBucket } from "firebase/auth";
+// dotenv.config();
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: API_KEY,
+  apiKey: "AIzaSyD4XrSQsU-Nhtb77EPciOj31fJn826OFIQ",
   authDomain: "digital-moodboard.firebaseapp.com",
   projectId: "digital-moodboard",
   storageBucket: "digital-moodboard.appspot.com",
-  messagingSenderId: MESSAGING_SENDER_ID,
-  appId: process.env.APP_ID,
+  messagingSenderId: "794295834694",
+  appId: "1:794295834694:web:54cd95efdbcfb8da191247",
 };
+// const firebaseConfig = {
+//   apiKey: process.env.API_KEY,
+//   authDomain: "digital-moodboard.firebaseapp.com",
+//   projectId: "digital-moodboard",
+//   storageBucket: "digital-moodboard.appspot.com",
+//   messagingSenderId: process.env.MESSAGING_SENDER_ID,
+//   appId: process.env.APP_ID,
+// };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
