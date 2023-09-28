@@ -7,12 +7,12 @@ import { getAuth, storageBucket } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD4XrSQsU-Nhtb77EPciOj31fJn826OFIQ",
+  apiKey: API_KEY,
   authDomain: "digital-moodboard.firebaseapp.com",
   projectId: "digital-moodboard",
   storageBucket: "digital-moodboard.appspot.com",
-  messagingSenderId: "794295834694",
-  appId: "1:794295834694:web:54cd95efdbcfb8da191247",
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
 };
 
 // Initialize Firebase
