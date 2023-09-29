@@ -13,7 +13,7 @@ function Post({ post }) {
       <Container>
         {/* ? helps us, if there is no url, it wont mess up */}
         <img
-          src={post.urls?.regular}
+          src={!post.postType ? post.urls?.regular : post.postImageUrl}
           alt="post"
           onClick={() => {
             console.log("sending:", post);

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import MainBoard from "./MainBoard";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useNavigate } from "react-router-dom";
 
@@ -11,9 +10,18 @@ function Profile() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [postsType, setPostsType] = useState("Created");
+  const [loading, setLoading] = useState(false);
+
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, (loggedInUser) => {
+    if (loggedInUser) {
+      setUser(auth.currentUser);
+    }
+  });
   useEffect(() => {
     // Get my posts
-    setUser(auth.currentUser);
+
     console.log(auth.currentUser);
     const fetchPosts = async () => {
       try {
@@ -28,12 +36,13 @@ function Profile() {
         const json = await response.json();
         console.log(json);
         setPosts(json);
+        setLoading(false);
       } catch (error) {
         console.log("error", error);
       }
     };
     fetchPosts();
-  }, []);
+  }, [auth.currentUser]);
   const handleLogout = async (e) => {
     signOut(auth)
       .then(() => {
@@ -48,6 +57,7 @@ function Profile() {
   };
   return (
     <Wrapper>
+      {/* {loading && <Loading>Loading..</Loading>} */}
       <HomeHeader>
         <HomePageButton>
           <a href="/">Home</a>
@@ -85,12 +95,12 @@ function Profile() {
       <PostsCard>
         {postsType === "Saved" && (
           <SavedPosts>
-            <MainBoard posts={posts} />
+            <MainBoard posts={[]} />
           </SavedPosts>
         )}
         {postsType === "Created" && (
           <CreatedPosts>
-            <MainBoard posts={[]} />
+            <MainBoard posts={posts} />
           </CreatedPosts>
         )}
       </PostsCard>
@@ -263,5 +273,17 @@ const Heading = styled.div`
   transform: translate(-50%, 0);
   top: 20px;
   font-weight: 500;
+`;
+const Loading = styled.div`
+  flex: 1;
+  display: flex;
+  position: absolute;
+  height: 900px;
+  width: 2000px;
+  z-index: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  font-size: 100px;
 `;
 export default Profile;

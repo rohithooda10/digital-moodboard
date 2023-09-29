@@ -26,7 +26,11 @@ function FullScreenPost() {
             // src={
             //   "https://images.unsplash.com/photo-1669642186275-cabf8e6b43e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2787&q=80"
             // }
-            src={post.urls?.regular}
+            src={
+              post.postType != "Created"
+                ? post.urls?.regular
+                : post.postImageUrl
+            }
             alt="pin"
           />
         </Container>
@@ -36,19 +40,31 @@ function FullScreenPost() {
               // src={
               //   "https://images.unsplash.com/photo-1669642186275-cabf8e6b43e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2787&q=80"
               // }
-              src={post.user.profile_image.small}
+              // src={post.user.profile_image.small}
               alt="dp"
             />
             <UserText>
-              <UserName>{post.user.username}</UserName>
-              <Timestamp>{post.created_at}</Timestamp>
+              {/* <UserName>{post.user.username}</UserName> */}
+              {!post.postType ? (
+                <Timestamp>{post.user.username}</Timestamp>
+              ) : (
+                <Timestamp>{post.userId}</Timestamp>
+              )}
             </UserText>
           </UserInfo>
           <Title>
-            {post.alt_description ? post.alt_description : "Untitled"}
+            {!post.postType
+              ? post.alt_description
+                ? post.alt_description
+                : "Untitled"
+              : post.title}
           </Title>
           <Description>
-            {post.description ? post.description : "No description available.."}
+            {!post.postType
+              ? post.alt_description
+                ? post.alt_description
+                : "No description available.."
+              : post.description}
           </Description>
           <CommentsHeading>Comments</CommentsHeading>
           <Comments>
