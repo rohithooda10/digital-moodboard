@@ -20,7 +20,8 @@ function Header({ onSearch, onUserSearch }) {
     evnt.preventDefault();
     // calling function in parent component (App.js),
     // We have passed onSearch function from App.js
-    onUserSearch(userSearchTerm);
+    // onUserSearch(userSearchTerm);
+    navigate("/UsersSearchResult");
   };
 
   return (

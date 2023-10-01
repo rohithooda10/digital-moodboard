@@ -8,6 +8,7 @@ import AddNewPost from "./components/AddNewPost";
 import FullScreenPost from "./components/FullScreenPost";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
+import UsersSearchResult from "./components/UsersSearchResult";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -77,6 +78,11 @@ function App() {
           <Route exact path="/register" element={<RegisterPage />} />
           <Route exact path="/addnewpost" element={<AddNewPost />} />
           <Route exact path="/fullscreenpost" element={<FullScreenPost />} />
+          <Route
+            exact
+            path="/userssearchresult"
+            element={<UsersSearchResult />}
+          />
         </Routes>
       </BrowserRouter>
     </>

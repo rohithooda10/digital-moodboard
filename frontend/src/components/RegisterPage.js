@@ -1,7 +1,9 @@
 import { React, useState } from "react";
 import styled from "styled-components";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 
 function RegisterPage() {
@@ -10,6 +12,21 @@ function RegisterPage() {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [imageUpload, setImageUpload] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [localImageUrl, setLocalImageUrl] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setImageUpload(file);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setLocalImageUrl(event.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,9 +35,20 @@ function RegisterPage() {
       .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
-        console.log(user);
-        // Save user to db
+        const imageRef = ref(
+          storage,
+          `profilePictures/${imageUpload.name + v4()}`
+        );
+        await uploadBytes(imageRef, imageUpload);
+        console.log("Image uploaded on Firebase storage, getting URL...");
+        const downloadURL = await getDownloadURL(imageRef);
+        await updateProfile(user, {
+          photoURL: downloadURL,
+        });
+
+        // Details to be put in the database
         const newUser = {
+          profilePicture: downloadURL,
           userId: user.uid,
           username: user.username,
           email: user.email,
@@ -61,6 +89,29 @@ function RegisterPage() {
       </BackgroundImage>
       <RegisterForm>
         <RegisterHeading>Register</RegisterHeading>
+        <UploadInputContainer>
+          <UploadInput
+            type="file"
+            onChange={handleFileChange}
+            required={true}
+            id="file-input"
+          />
+          <Label htmlFor="file-input">
+            {!localImageUrl && "Choose File"}
+            {localImageUrl && (
+              <img
+                alt="upload"
+                src={localImageUrl}
+                style={{
+                  height: "100%",
+                  width: "auto",
+                  display: "block",
+                  borderRadius: "20%",
+                }}
+              />
+            )}
+          </Label>
+        </UploadInputContainer>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -98,7 +149,6 @@ function RegisterPage() {
 const Wrapper = styled.div`
   display: flex;
   flex: 1;
-  //   background-color: red;
   height: 100vh;
   justify-content: center;
   align-items: center;
@@ -122,7 +172,7 @@ const RegisterForm = styled.div`
   display: flex;
   flex-direction: column;
   background-color: white;
-  height: 60%;
+  height: 85%;
   width: 35%;
   justify-content: center;
   align-items: center;
@@ -179,6 +229,32 @@ const LoginButton = styled(RegisterPageButton)`
   :hover {
     background-color: #e5e5e5;
   }
+`;
+const UploadInputContainer = styled.div`
+  display: flex;
+  height: 35%;
+  width: 40%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20%;
+`;
+
+const UploadInput = styled.input`
+  display: none;
+`;
+
+const Label = styled.label`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  margin: 5%;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 1px 1px 10px 1px #e5e5e5;
 `;
 
 export default RegisterPage;

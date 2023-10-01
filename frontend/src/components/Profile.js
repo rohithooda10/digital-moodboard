@@ -21,8 +21,9 @@ function Profile() {
   });
   useEffect(() => {
     // Get my posts
+    // setLoading(true);
+    console.log(user);
 
-    console.log(auth.currentUser);
     const fetchPosts = async () => {
       try {
         const response = await fetch("http://localhost:3001/postsById", {
@@ -34,7 +35,7 @@ function Profile() {
           },
         });
         const json = await response.json();
-        console.log(json);
+        // console.log(json);
         setPosts(json);
         setLoading(false);
       } catch (error) {
@@ -42,7 +43,7 @@ function Profile() {
       }
     };
     fetchPosts();
-  }, [auth.currentUser]);
+  }, [auth.currentUser, user]);
   const handleLogout = async (e) => {
     signOut(auth)
       .then(() => {
@@ -57,7 +58,7 @@ function Profile() {
   };
   return (
     <Wrapper>
-      {/* {loading && <Loading>Loading..</Loading>} */}
+      {loading && <Loading>Loading..</Loading>}
       <HomeHeader>
         <HomePageButton>
           <a href="/">Home</a>
@@ -67,7 +68,7 @@ function Profile() {
       </HomeHeader>
       <ProfileCard>
         <ProfilePicture>
-          <img src="https://images.unsplash.com/photo-1688728474617-577e621f8cbc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=928&q=80" />
+          {auth.currentUser && <img alt="dp" src={auth.currentUser.photoURL} />}
         </ProfilePicture>
         <NameHolder>{auth.currentUser && auth.currentUser.email}</NameHolder>
         <Description>
@@ -80,7 +81,7 @@ function Profile() {
         </ButtonsHolder>
       </ProfileCard>
       <PostsTypeButton>
-        <button
+        {/* <button
           type="submit"
           onClick={() => {
             postsType === "Saved"
@@ -90,14 +91,14 @@ function Profile() {
         >
           {postsType}
           <KeyboardArrowDownIcon />
-        </button>
+        </button> */}
       </PostsTypeButton>
       <PostsCard>
-        {postsType === "Saved" && (
+        {/* {postsType === "Saved" && (
           <SavedPosts>
             <MainBoard posts={[]} />
           </SavedPosts>
-        )}
+        )} */}
         {postsType === "Created" && (
           <CreatedPosts>
             <MainBoard posts={posts} />
