@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import UserTag from "./UserTag";
+import { useUser } from "../context/UserContext";
 import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 function UsersSearchResult() {
   const [userList, setUserList] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const auth = getAuth();
-  onAuthStateChanged(auth, (loggedInUser) => {
-    if (loggedInUser) {
-      setCurrentUser(auth.currentUser);
-    }
-  });
+  const { user: currentUser } = useUser();
   useEffect(() => {
     // Get all users
     console.log(currentUser);
@@ -18,14 +13,14 @@ function UsersSearchResult() {
       try {
         const response = await fetch("http://localhost:3001/users");
         const json = await response.json();
-        console.log(json);
+        console.log("USERLIST", json);
         setUserList(json);
       } catch (error) {
         console.log("error", error);
       }
     };
     fetchUserList();
-  }, []);
+  }, [currentUser]);
 
   return (
     <Wrapper>

@@ -33,45 +33,46 @@ app.get("/users", async (req, res) => {
 });
 // Get user by Id
 app.post("/userById", async (req, res) => {
-  const userFound = await Post.find({ userId: req.body.userId });
-  console.log(userFound);
+  console.log("Try to find:", req.body.userId);
+  const userFound = await User.findOne({ userId: req.body.userId });
   if (userFound) {
+    console.log("User found by ID:", userFound);
     res.json(userFound);
   } else res.json("Couldn't find user!");
 });
-// Update user
-app.post("/updateUser", (req, res) => {
-  User.updateOne(
-    { userId: req.body.userId },
-    {
-      title: req.body.title,
-      isDone: req.body.isDone,
-      description: req.body.description,
-      category: req.body.category,
-      time: req.body.time,
-
-      profilePicture: req.body.profilePicture,
-      userId: req.body.userId,
-      username: req.body.username,
-      email: req.body.email,
-      followers: req.body.followers,
-      following: req.body.following,
-      liked: req.body.liked,
-      savedPosts: req.body.savedPosts,
-      createdPosts: req.body.createdPosts,
-      searchHistory: req.body.searchHistory,
-    },
-    (err, result) => {
-      if (err) {
-        console.log("error");
-        res.json(err);
-      } else {
-        console.log("RESULT:" + result);
-        res.json("Successfully updated !");
-      }
+// Update user and return the updated object
+app.post("/updateUser", async (req, res) => {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { userId: req.body.userId },
+      {
+        profilePicture: req.body.profilePicture,
+        userId: req.body.userId,
+        username: req.body.username,
+        email: req.body.email,
+        // password: String, // no need to save here, since authentication is taken care by firebase
+        followers: req.body.followers,
+        following: req.body.following,
+        liked: req.body.liked,
+        savedPosts: req.body.savedPosts,
+        createdPosts: req.body.createdPosts,
+        searchHistory: req.body.searchHistory,
+      },
+      { new: true } // This option returns the updated document
+    );
+    if (updatedUser) {
+      console.log("Successfully updated !");
+      res.json(updatedUser);
+    } else {
+      console.log("No user found with the specified userId.");
+      res.status(404).json("No user found with the specified userId.");
     }
-  );
+  } catch (err) {
+    console.error("Error updating user:", err);
+    res.status(500).json("Internal Server Error");
+  }
 });
+
 // Add a post
 app.post("/posts", async (req, res) => {
   console.log(req.body);

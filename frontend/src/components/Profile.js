@@ -1,32 +1,124 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import MainBoard from "./MainBoard";
+import { useUser } from "../context/UserContext";
+import { useNavigate, useLocation } from "react-router-dom";
 import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [postsType, setPostsType] = useState("Created");
-  const [loading, setLoading] = useState(false);
-
   const auth = getAuth();
-
-  onAuthStateChanged(auth, (loggedInUser) => {
-    if (loggedInUser) {
-      setUser(auth.currentUser);
+  const location = useLocation();
+  const [posts, setPosts] = useState([]);
+  const [alreadyFollowing, setAlreadyFollowing] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const user = location.state ? location.state.user : auth.currentUser;
+  function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
     }
-  });
+    return arr;
+  }
+  const unfollow = async () => {
+    const arr = removeItemOnce(loggedInUser.following, user.userId);
+    loggedInUser.following = arr;
+    try {
+      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          following: loggedInUser.following,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setAlreadyFollowing(!alreadyFollowing);
+    } catch (error) {
+      console.log("error", error);
+    }
+    try {
+      const arr = removeItemOnce(user.followers, loggedInUser.userId);
+      user.followers = arr;
+      const updatedFollowing = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: user.userId,
+          followers: user.followers,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const follow = async () => {
+    try {
+      loggedInUser.following.push(user.userId);
+      console.log("FOLLOWING:", loggedInUser.following);
+      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          following: loggedInUser.following,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setAlreadyFollowing(!alreadyFollowing);
+    } catch (error) {
+      console.log("error", error);
+    }
+    try {
+      user.followers.push(loggedInUser.userId);
+      const updatedFollowing = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: user.userId,
+          followers: user.followers,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
   useEffect(() => {
     // Get my posts
-    // setLoading(true);
-    console.log(user);
-
-    const fetchPosts = async () => {
+    if (user) {
+      const fetchPosts = async () => {
+        try {
+          const response = await fetch("http://localhost:3001/postsById", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({ userId: user.uid }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const json = await response.json();
+          setPosts(json);
+        } catch (error) {
+          console.log("error", error);
+        }
+      };
+      fetchPosts();
+    }
+  }, [user]);
+  useEffect(() => {
+    const findLoggedInUser = async () => {
       try {
-        const response = await fetch("http://localhost:3001/postsById", {
+        const response = await fetch("http://localhost:3001/userById", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({ userId: auth.currentUser.uid }),
@@ -35,53 +127,71 @@ function Profile() {
           },
         });
         const json = await response.json();
-        // console.log(json);
-        setPosts(json);
-        setLoading(false);
+        const loggedInUser = json;
+        setLoggedInUser(loggedInUser);
+        setAlreadyFollowing(loggedInUser.following.includes(user.userId));
       } catch (error) {
         console.log("error", error);
       }
     };
-    fetchPosts();
-  }, [auth.currentUser, user]);
+    findLoggedInUser();
+  }, [auth.currentUser]);
+
   const handleLogout = async (e) => {
     signOut(auth)
       .then(() => {
-        // Sign-out successful.
-        navigate("/login");
+        // navigate("/login");
         console.log("Signed out successfully");
       })
       .catch((error) => {
-        // An error happened.
         console.log("Error while signing out");
       });
   };
   return (
     <Wrapper>
-      {loading && <Loading>Loading..</Loading>}
-      <HomeHeader>
-        <HomePageButton>
-          <a href="/">Home</a>
-        </HomePageButton>
-        <Heading>Profile</Heading>
-        <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
-      </HomeHeader>
-      <ProfileCard>
-        <ProfilePicture>
-          {auth.currentUser && <img alt="dp" src={auth.currentUser.photoURL} />}
-        </ProfilePicture>
-        <NameHolder>{auth.currentUser && auth.currentUser.email}</NameHolder>
-        <Description>
-          The greatest glory in living lies not in never falling, but in rising
-          every time we fall..
-        </Description>
-        <ButtonsHolder>
-          <FollowersButton>Followers</FollowersButton>
-          <FollowingButton>Following</FollowingButton>
-        </ButtonsHolder>
-      </ProfileCard>
-      <PostsTypeButton>
-        {/* <button
+      {!user ? (
+        <Loading>Loading..</Loading>
+      ) : (
+        <>
+          <HomeHeader>
+            <HomePageButton>
+              <a href="/">Home</a>
+            </HomePageButton>
+            <Heading>Profile</Heading>
+            <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+          </HomeHeader>
+          <ProfileCard>
+            <ProfilePicture>
+              {location.state && user && (
+                <img alt="dp" src={user.profilePicture} />
+              )}
+              {!location.state && loggedInUser && (
+                <img alt="dp" src={loggedInUser.profilePicture} />
+              )}
+            </ProfilePicture>
+            <NameHolder>{user && user.email}</NameHolder>
+            <Description>
+              The greatest glory in living lies not in never falling, but in
+              rising every time we fall..
+            </Description>
+            {location.state && (
+              <FollowersButton
+                onClick={() => {
+                  if (alreadyFollowing) unfollow();
+                  else follow();
+                }}
+                style={{ width: "250px" }}
+              >
+                {alreadyFollowing ? "Following" : "Follow"}
+              </FollowersButton>
+            )}
+            <ButtonsHolder>
+              <FollowersButton>Followers</FollowersButton>
+              <FollowingButton>Following</FollowingButton>
+            </ButtonsHolder>
+          </ProfileCard>
+          {/* <PostsTypeButton>
+        <button
           type="submit"
           onClick={() => {
             postsType === "Saved"
@@ -91,20 +201,22 @@ function Profile() {
         >
           {postsType}
           <KeyboardArrowDownIcon />
-        </button> */}
-      </PostsTypeButton>
-      <PostsCard>
-        {/* {postsType === "Saved" && (
+        </button>
+      </PostsTypeButton> */}
+          <PostsCard>
+            {/* {postsType === "Saved" && (
           <SavedPosts>
             <MainBoard posts={[]} />
           </SavedPosts>
         )} */}
-        {postsType === "Created" && (
-          <CreatedPosts>
-            <MainBoard posts={posts} />
-          </CreatedPosts>
-        )}
-      </PostsCard>
+            {/* {postsType === "Created" && ( */}
+            <CreatedPosts>
+              <MainBoard posts={posts} />
+            </CreatedPosts>
+            {/* )} */}
+          </PostsCard>
+        </>
+      )}
     </Wrapper>
   );
 }

@@ -6,36 +6,11 @@ const UserSchema = new mongoose.Schema({
   username: String,
   email: String,
   // password: String, // no need to save here, since authentication is taken care by firebase
-  followers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-    },
-  ],
-  following: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-    },
-  ],
-  liked: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "posts",
-    },
-  ],
-  savedPosts: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "posts",
-    },
-  ],
-  createdPosts: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "posts",
-    },
-  ],
+  followers: [String],
+  following: [String],
+  liked: [String],
+  savedPosts: [String],
+  createdPosts: [String],
   searchHistory: [{ term: String, searchAt: Date }],
 });
 

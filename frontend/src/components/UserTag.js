@@ -1,20 +1,25 @@
 import { async } from "@firebase/util";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useUser } from "../context/UserContext";
 import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function UserTag({ user }) {
-  // currentUser is logged in user's firebase object, not mongodb one
-  const [currentUser, setCurrentUser] = useState(null);
+  // const { user: currentUser } = useUser();
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
   const auth = getAuth();
-  onAuthStateChanged(auth, (loggedInUser) => {
-    if (loggedInUser) {
-      setCurrentUser(auth.currentUser);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (auth.currentUser && user.email === auth.currentUser.email) {
+      setIsCurrentUser(true);
     }
-  });
+  }, [auth.currentUser, user]);
+
   const handleSubmit = async () => {
     try {
-      console.log(auth.currentUser.uid);
+      console.log("CURRENT USER:", auth.currentUser.uid);
       const response = await fetch("http://localhost:3001/userById", {
         method: "POST",
         mode: "cors",
@@ -25,7 +30,7 @@ function UserTag({ user }) {
       });
       const json = await response.json();
       console.log("OLD USER", json);
-      json.following.push(user.uid);
+      json[0].following.push(user.uid);
       const updatedUser = await fetch("http://localhost:3001/userById", {
         method: "POST",
         mode: "cors",
@@ -40,10 +45,10 @@ function UserTag({ user }) {
     }
   };
   return (
-    <Wrapper>
+    <Wrapper onClick={() => navigate("/profile", { state: { user: user } })}>
       <UserDetails>
         <img
-          alth="dp"
+          alt="dp"
           src={
             user.profilePicture
               ? user.profilePicture
@@ -54,11 +59,6 @@ function UserTag({ user }) {
           <UserName>{user.email}</UserName>
           <UserEmail>{user.email}</UserEmail>
         </UserText>
-        {user.email !== auth.currentUser.email && (
-          <FollowingButton type="submit" onClick={handleSubmit}>
-            Follow
-          </FollowingButton>
-        )}
       </UserDetails>
     </Wrapper>
   );

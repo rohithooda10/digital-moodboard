@@ -3,12 +3,7 @@ const mongoose = require("mongoose");
 const PostSchema = new mongoose.Schema({
   userId: String,
   postedAt: Date,
-  comments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "comments",
-    },
-  ],
+  comments: [String],
   title: String,
   description: String,
   postImageUrl: String,
