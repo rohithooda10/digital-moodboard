@@ -16,6 +16,7 @@ import { UserProvider } from "./context/UserContext";
 function App() {
   const [user, setUser] = useState(null);
   const [posts, setNewposts] = useState([]);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   const auth = getAuth();
 
   useEffect(() => {
@@ -38,8 +39,8 @@ function App() {
     const getNewposts = () => {
       let promises = [];
       let postData = [];
-      let posts = ["ocean", "dogs"];
-      posts.forEach((term) => {
+      let terms = ["ocean", "dogs"];
+      terms.forEach((term) => {
         promises.push(
           getImages(term).then((res) => {
             let results = res.data.results;

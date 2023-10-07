@@ -94,28 +94,6 @@ function Profile() {
     }
   };
   useEffect(() => {
-    // Get my posts
-    if (user) {
-      const fetchPosts = async () => {
-        try {
-          const response = await fetch("http://localhost:3001/postsById", {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify({ userId: user.uid }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          const json = await response.json();
-          setPosts(json);
-        } catch (error) {
-          console.log("error", error);
-        }
-      };
-      fetchPosts();
-    }
-  }, [user]);
-  useEffect(() => {
     const findLoggedInUser = async () => {
       try {
         const response = await fetch("http://localhost:3001/userById", {
@@ -136,6 +114,49 @@ function Profile() {
     };
     findLoggedInUser();
   }, [auth.currentUser]);
+  useEffect(() => {
+    // Get my posts
+    if (user) {
+      const fetchPosts = async () => {
+        const userIdForPosts = location.state
+          ? location.state.user.userId
+          : auth.currentUser.uid;
+        try {
+          const response = await fetch("http://localhost:3001/postsById", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({ userId: userIdForPosts }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const json = await response.json();
+          setPosts(json);
+        } catch (error) {
+          console.log("error", error);
+        }
+      };
+      fetchPosts();
+      const findLikedPosts = async () => {
+        const postIds = !location.state ? loggedInUser.likedPosts : [];
+        try {
+          const response = await fetch("http://localhost:3001/postsByPostId", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({ postIds: postIds }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const myliked = await response.json();
+          setPosts((prevPosts) => [...prevPosts, ...myliked]);
+        } catch (error) {
+          console.log("error", error);
+        }
+      };
+      if (loggedInUser) findLikedPosts();
+    }
+  }, [user, loggedInUser]);
 
   const handleLogout = async (e) => {
     signOut(auth)

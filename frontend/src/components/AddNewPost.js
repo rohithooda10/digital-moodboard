@@ -42,20 +42,16 @@ function AddNewPost() {
       console.log(downloadURL);
 
       // Details to be put in the database
-      console.log(auth.currentUser.email);
-      console.log(title);
-      console.log(description);
-      console.log(downloadURL);
-
       // Post to database
       const newPost = {
+        postId: v4(),
         userId: auth.currentUser.uid,
         postedAt: Date.now(),
         title: title,
         description: description,
         comments: [],
         postImageUrl: downloadURL,
-        postType: "Created", // created or saved
+        postType: "Created",
       };
       try {
         const response = await fetch("http://localhost:3001/posts", {

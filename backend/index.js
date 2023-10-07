@@ -26,17 +26,13 @@ app.post("/users", async (req, res) => {
 app.get("/users", async (req, res) => {
   const usersList = await User.find({});
   if (usersList) {
-    console.log(usersList);
     res.json(usersList);
-    console.log(usersList);
   } else res.json("Couldn't find users");
 });
 // Get user by Id
 app.post("/userById", async (req, res) => {
-  console.log("Try to find:", req.body.userId);
   const userFound = await User.findOne({ userId: req.body.userId });
   if (userFound) {
-    console.log("User found by ID:", userFound);
     res.json(userFound);
   } else res.json("Couldn't find user!");
 });
@@ -53,8 +49,8 @@ app.post("/updateUser", async (req, res) => {
         // password: String, // no need to save here, since authentication is taken care by firebase
         followers: req.body.followers,
         following: req.body.following,
-        liked: req.body.liked,
-        savedPosts: req.body.savedPosts,
+        likedPosts: req.body.likedPosts,
+        // savedPosts: req.body.savedPosts,
         createdPosts: req.body.createdPosts,
         searchHistory: req.body.searchHistory,
       },
@@ -85,13 +81,19 @@ app.post("/posts", async (req, res) => {
 app.get("/posts", async (req, res) => {
   const postsList = await Post.find({});
   if (postsList) {
-    // console.log(postsList);
     res.json(postsList);
   } else res.json("Couldn't find posts");
 });
-// Get posts by Id
+// Get posts by User Id
 app.post("/postsById", async (req, res) => {
   const postsList = await Post.find({ userId: req.body.userId });
+  if (postsList) {
+    res.json(postsList);
+  } else res.json("Couldn't find posts for this user");
+});
+// Get posts by posts Ids
+app.post("/postsByPostId", async (req, res) => {
+  const postsList = await Post.find({ postId: { $in: req.body.postIds } });
   if (postsList) {
     res.json(postsList);
   } else res.json("Couldn't find posts for this user");

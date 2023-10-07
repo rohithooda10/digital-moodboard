@@ -1,13 +1,82 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { IconButton } from "@mui/material";
+import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 function Post({ post }) {
   const navigate = useNavigate();
+  const auth = getAuth();
   const [liked, setLiked] = useState(false);
-
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const likeThePost = async () => {
+    loggedInUser.likedPosts.push(post.postId);
+    try {
+      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          likedPosts: loggedInUser.likedPosts,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setLiked(!liked);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
+  }
+  const unlikeThePost = async () => {
+    const arr = removeItemOnce(loggedInUser.likedPosts, post.postId);
+    loggedInUser.likedPosts = arr;
+    try {
+      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          likedPosts: loggedInUser.likedPosts,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setLiked(!liked);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  useEffect(() => {
+    const findLoggedInUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/userById", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ userId: auth.currentUser.uid }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const json = await response.json();
+        const loggedInUser = json;
+        setLoggedInUser(loggedInUser);
+        setLiked(loggedInUser.following.includes(post.postId));
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    findLoggedInUser();
+  }, [auth.currentUser]);
   return (
     <Wrapper>
       <Container>
@@ -22,7 +91,8 @@ function Post({ post }) {
         />
         <LikeButton
           onClick={() => {
-            setLiked(!liked);
+            if (!liked) likeThePost();
+            else unlikeThePost();
           }}
         >
           <IconButton>

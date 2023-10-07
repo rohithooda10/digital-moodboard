@@ -8,8 +8,8 @@ const UserSchema = new mongoose.Schema({
   // password: String, // no need to save here, since authentication is taken care by firebase
   followers: [String],
   following: [String],
-  liked: [String],
-  savedPosts: [String],
+  // liked: [String],
+  likedPosts: [String],
   createdPosts: [String],
   searchHistory: [{ term: String, searchAt: Date }],
 });
