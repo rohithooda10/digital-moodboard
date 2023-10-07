@@ -86,17 +86,21 @@ app.get("/posts", async (req, res) => {
 });
 // Get posts by User Id
 app.post("/postsById", async (req, res) => {
-  const postsList = await Post.find({ userId: req.body.userId });
+  const postsList = await Post.find({ userId: { $in: req.body.userId } }).sort({
+    createdAt: -1,
+  });
   if (postsList) {
     res.json(postsList);
   } else res.json("Couldn't find posts for this user");
 });
 // Get posts by posts Ids
 app.post("/postsByPostId", async (req, res) => {
-  const postsList = await Post.find({ postId: { $in: req.body.postIds } });
+  const postsList = await Post.find({ postId: { $in: req.body.postIds } }).sort(
+    { createdAt: -1 }
+  );
   if (postsList) {
     res.json(postsList);
-  } else res.json("Couldn't find posts for this user");
+  } else res.json("Couldn't find posts with these Ids");
 });
 app.listen(process.env.PORT, () => {
   console.log("Server Running!");

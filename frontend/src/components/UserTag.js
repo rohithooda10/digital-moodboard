@@ -6,7 +6,6 @@ import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 function UserTag({ user }) {
-  // const { user: currentUser } = useUser();
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
@@ -19,7 +18,6 @@ function UserTag({ user }) {
 
   const handleSubmit = async () => {
     try {
-      console.log("CURRENT USER:", auth.currentUser.uid);
       const response = await fetch("http://localhost:3001/userById", {
         method: "POST",
         mode: "cors",
@@ -29,7 +27,6 @@ function UserTag({ user }) {
         },
       });
       const json = await response.json();
-      console.log("OLD USER", json);
       json[0].following.push(user.uid);
       const updatedUser = await fetch("http://localhost:3001/userById", {
         method: "POST",
@@ -39,7 +36,6 @@ function UserTag({ user }) {
           "Content-Type": "application/json",
         },
       });
-      console.log("NEW USER", updatedUser);
     } catch (error) {
       console.log("error", error);
     }

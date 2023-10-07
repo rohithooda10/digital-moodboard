@@ -70,7 +70,7 @@ function Post({ post }) {
         const json = await response.json();
         const loggedInUser = json;
         setLoggedInUser(loggedInUser);
-        setLiked(loggedInUser.likedPosts.includes(post.postId));
+        await setLiked(loggedInUser.likedPosts.includes(post.postId));
       } catch (error) {
         console.log("error", error);
       }
@@ -85,21 +85,22 @@ function Post({ post }) {
           src={!post.postType ? post.urls?.regular : post.postImageUrl}
           alt="post"
           onClick={() => {
-            console.log("sending:", post);
             navigate("/fullscreenpost", { state: { post: post } });
           }}
         />
-        <LikeButton
-          onClick={() => {
-            if (!liked) likeThePost();
-            else unlikeThePost();
-          }}
-        >
-          <IconButton>
-            {!liked && <FavoriteBorderIcon style={{ color: "white" }} />}
-            {liked && <FavoriteIcon style={{ color: "white" }} />}
-          </IconButton>
-        </LikeButton>
+        {post.postType && (
+          <LikeButton
+            onClick={() => {
+              if (!liked) likeThePost();
+              else unlikeThePost();
+            }}
+          >
+            <IconButton>
+              {!liked && <FavoriteBorderIcon style={{ color: "white" }} />}
+              {liked && <FavoriteIcon style={{ color: "white" }} />}
+            </IconButton>
+          </LikeButton>
+        )}
       </Container>
     </Wrapper>
   );

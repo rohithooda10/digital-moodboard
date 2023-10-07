@@ -50,13 +50,13 @@ function RegisterPage() {
         const newUser = {
           profilePicture: downloadURL,
           userId: user.uid,
-          username: user.username,
+          username: username,
           email: user.email,
           // password: String,
           followers: [],
           following: [],
-          liked: [],
-          savedPosts: [],
+          likedPosts: [],
+          // savedPosts: [],
           createdPosts: [],
           searchHistory: [],
         };

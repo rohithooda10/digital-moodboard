@@ -15,7 +15,7 @@ import { UserProvider } from "./context/UserContext";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [posts, setNewposts] = useState([]);
+  const [posts, setNewPosts] = useState([]);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const auth = getAuth();
 
@@ -34,9 +34,35 @@ function App() {
       unsubscribe();
     };
   }, [auth]);
-
+  const randomizeArray = (array) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
   useEffect(() => {
-    const getNewposts = () => {
+    // Define a function to fetch the logged-in user
+    const findLoggedInUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/userById", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ userId: auth.currentUser.uid }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const json = await response.json();
+        setLoggedInUser(json);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    // Fetch the logged-in user if auth.currentUser is defined
+    if (auth.currentUser) {
+      findLoggedInUser();
+    }
+  }, [auth.currentUser]);
+  useEffect(() => {
+    // Fetch new posts based on search terms
+    const getNewPosts = async () => {
       let promises = [];
       let postData = [];
       let terms = ["ocean", "dogs"];
@@ -45,18 +71,61 @@ function App() {
           getImages(term).then((res) => {
             let results = res.data.results;
             postData = postData.concat(results);
-            postData.sort(function (a, b) {
-              return 0.5 - Math.random();
-            });
           })
         );
       });
-      Promise.all(promises).then(() => {
-        setNewposts(postData);
-      });
+      // Wait for all promises to resolve
+      await Promise.all(promises);
+
+      // Randomize the postData array
+      // postData.sort(function (a, b) {
+      //   return 0.5 - Math.random();
+      // });
+
+      // Set new posts after randomization
+      setNewPosts(postData);
+
+      // Define a function to fetch posts for the logged-in user's following
+      const fetchPosts = async () => {
+        if (loggedInUser) {
+          const followingIds = loggedInUser.following;
+          try {
+            const response = await fetch("http://localhost:3001/postsById", {
+              method: "POST",
+              mode: "cors",
+              body: JSON.stringify({ userId: followingIds }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            const json = await response.json();
+            console.log("Following posts:", json);
+
+            // Combine the new posts with the posts from the logged-in user's following
+            const combinedPosts = [...posts, ...json];
+
+            // Randomize the combinedPosts array
+            combinedPosts.sort(function (a, b) {
+              return 0.5 - Math.random();
+            });
+
+            // Set the randomized combinedPosts as the new posts
+            setNewPosts(combinedPosts);
+          } catch (error) {
+            console.log("error", error);
+          }
+        }
+      };
+
+      // Fetch posts for the logged-in user's following
+      if (loggedInUser) {
+        fetchPosts();
+      }
     };
-    getNewposts();
-  }, []);
+
+    // Fetch new posts based on search terms
+    getNewPosts();
+  }, [loggedInUser]);
 
   const getImages = (searchTerm) => {
     return unsplash.get("https://api.unsplash.com/search/photos", {
@@ -72,7 +141,7 @@ function App() {
       newPosts.sort(function (a, b) {
         return 0.5 - Math.random();
       });
-      setNewposts(newPosts);
+      setNewPosts(newPosts);
     });
   };
 

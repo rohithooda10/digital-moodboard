@@ -1,14 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import FaceIcon from "@mui/icons-material/Face";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IconButton } from "@mui/material";
 import Comment from "./Comment";
+import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 function FullScreenPost() {
+  const auth = getAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [uploader, setUploader] = useState(null);
   const { post } = location.state || {};
   console.log(post);
+  useEffect(() => {
+    const findUploader = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/userById", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ userId: post.userId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const json = await response.json();
+        const loggedInUser = json;
+        setUploader(loggedInUser);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    findUploader();
+  }, [auth.currentUser]);
   return (
     <Wrapper>
       <HomeHeader>
@@ -23,9 +47,6 @@ function FullScreenPost() {
         <Container>
           {/* ? helps us, if there is no url, it wont mess up */}
           <img
-            // src={
-            //   "https://images.unsplash.com/photo-1669642186275-cabf8e6b43e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2787&q=80"
-            // }
             src={
               post.postType != "Created"
                 ? post.urls?.regular
@@ -37,18 +58,28 @@ function FullScreenPost() {
         <PinText>
           <UserInfo>
             <img
-              // src={
-              //   "https://images.unsplash.com/photo-1669642186275-cabf8e6b43e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2787&q=80"
-              // }
-              // src={post.user.profile_image.small}
+              src={
+                post.postType != "Created"
+                  ? post.user.profile_image.small
+                  : uploader
+                  ? uploader.profilePicture
+                  : post.postImageUrl
+              }
               alt="dp"
             />
             <UserText>
-              {/* <UserName>{post.user.username}</UserName> */}
               {!post.postType ? (
-                <Timestamp>{post.user.username}</Timestamp>
+                <>
+                  <UserName>{post.user.username}</UserName>
+                  <Timestamp>{post.user.name}</Timestamp>
+                </>
               ) : (
-                <Timestamp>{post.userId}</Timestamp>
+                <>
+                  <UserName>
+                    {uploader ? uploader.username : "Uploader"}
+                  </UserName>
+                  <Timestamp>{uploader ? uploader.email : "UserId"}</Timestamp>
+                </>
               )}
             </UserText>
           </UserInfo>
@@ -152,6 +183,8 @@ const Container = styled.div`
   box-sizing: border-box;
   cursor: pointer;
   max-width: 400px;
+  overflow: hidden;
+
   img {
     display: flex;
     width: 100%;
