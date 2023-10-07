@@ -70,7 +70,7 @@ function Post({ post }) {
         const json = await response.json();
         const loggedInUser = json;
         setLoggedInUser(loggedInUser);
-        setLiked(loggedInUser.following.includes(post.postId));
+        setLiked(loggedInUser.likedPosts.includes(post.postId));
       } catch (error) {
         console.log("error", error);
       }
