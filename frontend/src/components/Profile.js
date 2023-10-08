@@ -20,75 +20,39 @@ function Profile() {
     }
     return arr;
   }
-  const unfollow = async () => {
-    const arr = removeItemOnce(loggedInUser.following, user.userId);
-    loggedInUser.following = arr;
+
+  const follow = async () => {
     try {
-      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+      const updatedUser = await fetch("http://localhost:3001/addFollowing", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
           userId: loggedInUser.userId,
-          following: loggedInUser.following,
+          followeeId: user.userId,
         }),
         headers: {
           "Content-Type": "application/json",
         },
       });
       setAlreadyFollowing(!alreadyFollowing);
-    } catch (error) {
-      console.log("error", error);
-    }
-    try {
-      const arr = removeItemOnce(user.followers, loggedInUser.userId);
-      user.followers = arr;
-      const updatedFollowing = await fetch("http://localhost:3001/updateUser", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          userId: user.userId,
-          followers: user.followers,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
     } catch (error) {
       console.log("error", error);
     }
   };
-  const follow = async () => {
+  const unfollow = async () => {
     try {
-      loggedInUser.following.push(user.userId);
-      console.log("FOLLOWING:", loggedInUser.following);
-      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+      const updatedUser = await fetch("http://localhost:3001/removeFollowing", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
           userId: loggedInUser.userId,
-          following: loggedInUser.following,
+          followeeId: user.userId,
         }),
         headers: {
           "Content-Type": "application/json",
         },
       });
       setAlreadyFollowing(!alreadyFollowing);
-    } catch (error) {
-      console.log("error", error);
-    }
-    try {
-      user.followers.push(loggedInUser.userId);
-      const updatedFollowing = await fetch("http://localhost:3001/updateUser", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          userId: user.userId,
-          followers: user.followers,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
     } catch (error) {
       console.log("error", error);
     }
@@ -122,7 +86,7 @@ function Profile() {
           ? location.state.user.userId
           : auth.currentUser.uid;
         try {
-          const response = await fetch("http://localhost:3001/postsById", {
+          const response = await fetch("http://localhost:3001/postsByUserId", {
             method: "POST",
             mode: "cors",
             body: JSON.stringify({ userId: userIdForPosts }),

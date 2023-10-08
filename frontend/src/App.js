@@ -90,14 +90,17 @@ function App() {
         if (loggedInUser) {
           const followingIds = loggedInUser.following;
           try {
-            const response = await fetch("http://localhost:3001/postsById", {
-              method: "POST",
-              mode: "cors",
-              body: JSON.stringify({ userId: followingIds }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            });
+            const response = await fetch(
+              "http://localhost:3001/postsByUserId",
+              {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify({ userId: followingIds }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
             const json = await response.json();
             console.log("Following posts:", json);
 
