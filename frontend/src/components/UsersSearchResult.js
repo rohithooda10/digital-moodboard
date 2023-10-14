@@ -11,7 +11,7 @@ function UsersSearchResult() {
     console.log(currentUser);
     const fetchUserList = async () => {
       try {
-        const response = await fetch("http://localhost:3001/users");
+        const response = await fetch("http://localhost:8080/users");
         const json = await response.json();
         console.log("USERLIST", json);
         setUserList(json);

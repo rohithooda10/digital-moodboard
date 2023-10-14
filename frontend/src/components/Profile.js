@@ -23,7 +23,7 @@ function Profile() {
 
   const follow = async () => {
     try {
-      const updatedUser = await fetch("http://localhost:3001/addFollowing", {
+      const updatedUser = await fetch("http://localhost:8080/addFollowing", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
@@ -41,7 +41,7 @@ function Profile() {
   };
   const unfollow = async () => {
     try {
-      const updatedUser = await fetch("http://localhost:3001/removeFollowing", {
+      const updatedUser = await fetch("http://localhost:8080/removeFollowing", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
@@ -60,7 +60,7 @@ function Profile() {
   useEffect(() => {
     const findLoggedInUser = async () => {
       try {
-        const response = await fetch("http://localhost:3001/userById", {
+        const response = await fetch("http://localhost:8080/userById", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({ userId: auth.currentUser.uid }),
@@ -86,7 +86,7 @@ function Profile() {
           ? location.state.user.userId
           : auth.currentUser.uid;
         try {
-          const response = await fetch("http://localhost:3001/postsByUserId", {
+          const response = await fetch("http://localhost:8080/postsByUserId", {
             method: "POST",
             mode: "cors",
             body: JSON.stringify({ userId: userIdForPosts }),
@@ -104,7 +104,7 @@ function Profile() {
       const findLikedPosts = async () => {
         const postIds = !location.state ? loggedInUser.likedPosts : [];
         try {
-          const response = await fetch("http://localhost:3001/postsByPostId", {
+          const response = await fetch("http://localhost:8080/postsByPostId", {
             method: "POST",
             mode: "cors",
             body: JSON.stringify({ postIds: postIds }),
@@ -159,7 +159,7 @@ function Profile() {
               The greatest glory in living lies not in never falling, but in
               rising every time we fall..
             </Description>
-            {location.state && (
+            {location.state && user.userId != auth.currentUser.uid && (
               <FollowersButton
                 onClick={() => {
                   if (alreadyFollowing) unfollow();

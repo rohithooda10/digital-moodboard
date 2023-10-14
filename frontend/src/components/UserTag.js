@@ -18,7 +18,7 @@ function UserTag({ user }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://localhost:3001/userById", {
+      const response = await fetch("http://localhost:8080/userById", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({ userId: auth.currentUser.uid }),
@@ -28,7 +28,7 @@ function UserTag({ user }) {
       });
       const json = await response.json();
       json[0].following.push(user.uid);
-      const updatedUser = await fetch("http://localhost:3001/userById", {
+      const updatedUser = await fetch("http://localhost:8080/userById", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({ json }),

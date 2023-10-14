@@ -13,7 +13,7 @@ function Post({ post }) {
   const likeThePost = async () => {
     loggedInUser.likedPosts.push(post.postId);
     try {
-      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+      const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
@@ -40,7 +40,7 @@ function Post({ post }) {
     const arr = removeItemOnce(loggedInUser.likedPosts, post.postId);
     loggedInUser.likedPosts = arr;
     try {
-      const updatedUser = await fetch("http://localhost:3001/updateUser", {
+      const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
@@ -59,7 +59,7 @@ function Post({ post }) {
   useEffect(() => {
     const findLoggedInUser = async () => {
       try {
-        const response = await fetch("http://localhost:3001/userById", {
+        const response = await fetch("http://localhost:8080/userById", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({ userId: auth.currentUser.uid }),
@@ -88,7 +88,7 @@ function Post({ post }) {
             navigate("/fullscreenpost", { state: { post: post } });
           }}
         />
-        {post.postType && (
+        {post.postType && post.userId != auth.currentUser.uid && (
           <LikeButton
             onClick={() => {
               if (!liked) likeThePost();

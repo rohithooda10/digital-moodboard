@@ -41,7 +41,7 @@ function App() {
     // Define a function to fetch the logged-in user
     const findLoggedInUser = async () => {
       try {
-        const response = await fetch("http://localhost:3001/userById", {
+        const response = await fetch("http://localhost:8080/userById", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({ userId: auth.currentUser.uid }),
@@ -91,7 +91,7 @@ function App() {
           const followingIds = loggedInUser.following;
           try {
             const response = await fetch(
-              "http://localhost:3001/postsByUserId",
+              "http://localhost:8080/postsByUserId",
               {
                 method: "POST",
                 mode: "cors",

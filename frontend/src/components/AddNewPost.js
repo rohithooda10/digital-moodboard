@@ -54,7 +54,7 @@ function AddNewPost() {
         postType: "Created",
       };
       try {
-        const response = await fetch("http://localhost:3001/posts", {
+        const response = await fetch("http://localhost:8080/posts", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify(newPost),

@@ -11,11 +11,11 @@ function FullScreenPost() {
   const location = useLocation();
   const [uploader, setUploader] = useState(null);
   const { post } = location.state || {};
-  console.log(post);
+
   useEffect(() => {
     const findUploader = async () => {
       try {
-        const response = await fetch("http://localhost:3001/userById", {
+        const response = await fetch("http://localhost:8080/userById", {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({ userId: post.userId }),

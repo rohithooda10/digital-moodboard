@@ -61,7 +61,7 @@ function RegisterPage() {
           searchHistory: [],
         };
         try {
-          const response = await fetch("http://localhost:3001/users", {
+          const response = await fetch("http://localhost:8080/users", {
             method: "POST",
             mode: "cors",
             body: JSON.stringify(newUser),

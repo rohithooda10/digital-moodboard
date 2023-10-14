@@ -14,6 +14,9 @@ mongoose.connect(mongodbURL, {
   dbName: "digital-moodboard",
 });
 
+const args = process.argv.slice(2);
+const port = args.length > 0 ? parseInt(args[0]) : process.env.PORT || 3001;
+
 // Add a user
 app.post("/users", async (req, res) => {
   // console.log(req.body);
@@ -69,6 +72,87 @@ app.post("/updateUser", async (req, res) => {
   }
 });
 
+// Update user following and follower of the user begin followed and return the updated object
+app.post("/addFollowing", async (req, res) => {
+  try {
+    // Update the user's "following" list
+    const updatedUser = await User.findOneAndUpdate(
+      { userId: req.body.userId },
+      {
+        $push: { following: req.body.followeeId },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      console.log("No user found with the specified userId.");
+      return res.status(404).json("No user found with the specified userId.");
+    }
+
+    // Update the followee's "followers" list
+    const updatedFolloweeUser = await User.findOneAndUpdate(
+      { userId: req.body.followeeId },
+      {
+        $push: { followers: req.body.userId },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedFolloweeUser) {
+      console.log("No user found with the specified followeeId.");
+      return res
+        .status(404)
+        .json("No user found with the specified followeeId.");
+    }
+
+    console.log("Successfully updated the following and followers!");
+    return res.json(updatedUser);
+  } catch (err) {
+    console.error("Error updating user:", err);
+    return res.status(500).json("Internal Server Error");
+  }
+});
+
+app.post("/removeFollowing", async (req, res) => {
+  try {
+    // Remove the user's ID from the followee's "followers" list
+    const updatedFolloweeUser = await User.findOneAndUpdate(
+      { userId: req.body.followeeId },
+      {
+        $pull: { followers: req.body.userId },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedFolloweeUser) {
+      console.log("No user found with the specified followeeId.");
+      return res
+        .status(404)
+        .json("No user found with the specified followeeId.");
+    }
+
+    // Remove the followee's ID from the user's "following" list
+    const updatedUser = await User.findOneAndUpdate(
+      { userId: req.body.userId },
+      {
+        $pull: { following: req.body.followeeId },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      console.log("No user found with the specified userId.");
+      return res.status(404).json("No user found with the specified userId.");
+    }
+
+    console.log("Successfully removed the following relationship!");
+    return res.json(updatedUser);
+  } catch (err) {
+    console.error("Error updating user:", err);
+    return res.status(500).json("Internal Server Error");
+  }
+});
+
 // Add a post
 app.post("/posts", async (req, res) => {
   console.log(req.body);
@@ -85,7 +169,7 @@ app.get("/posts", async (req, res) => {
   } else res.json("Couldn't find posts");
 });
 // Get posts by User Id
-app.post("/postsById", async (req, res) => {
+app.post("/postsByUserId", async (req, res) => {
   const postsList = await Post.find({ userId: { $in: req.body.userId } }).sort({
     createdAt: -1,
   });
@@ -102,6 +186,8 @@ app.post("/postsByPostId", async (req, res) => {
     res.json(postsList);
   } else res.json("Couldn't find posts with these Ids");
 });
-app.listen(process.env.PORT, () => {
+
+// Listener
+app.listen(port, () => {
   console.log("Server Running!");
 });
