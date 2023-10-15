@@ -20,7 +20,7 @@ function UserTag({ user }) {
           }
         />
         <UserText>
-          <UserName>{user.email}</UserName>
+          <UserName>{user.username}</UserName>
           <UserEmail>{user.email}</UserEmail>
         </UserText>
       </UserDetails>

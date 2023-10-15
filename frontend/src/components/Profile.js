@@ -167,7 +167,13 @@ function Profile() {
                 <img alt="dp" src={loggedInUser.profilePicture} />
               )}
             </ProfilePicture>
-            <NameHolder>{user && user.email}</NameHolder>
+
+            {!location.state && loggedInUser && (
+              <NameHolder>{loggedInUser && loggedInUser.username}</NameHolder>
+            )}
+            {location.state && user && (
+              <NameHolder>{user && user.username}</NameHolder>
+            )}
             <Description>
               The greatest glory in living lies not in never falling, but in
               rising every time we fall..
@@ -200,30 +206,10 @@ function Profile() {
               </FollowingButton>
             </ButtonsHolder>
           </ProfileCard>
-          {/* <PostsTypeButton>
-        <button
-          type="submit"
-          onClick={() => {
-            postsType === "Saved"
-              ? setPostsType("Created")
-              : setPostsType("Saved");
-          }}
-        >
-          {postsType}
-          <KeyboardArrowDownIcon />
-        </button>
-      </PostsTypeButton> */}
           <PostsCard>
-            {/* {postsType === "Saved" && (
-          <SavedPosts>
-            <MainBoard posts={[]} />
-          </SavedPosts>
-        )} */}
-            {/* {postsType === "Created" && ( */}
             <CreatedPosts>
               <MainBoard posts={posts} />
             </CreatedPosts>
-            {/* )} */}
           </PostsCard>
         </>
       )}

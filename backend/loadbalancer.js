@@ -1,3 +1,4 @@
+// LOADBALANCER
 const http = require("http");
 const express = require("express");
 const httpProxy = require("http-proxy");
@@ -6,20 +7,25 @@ const net = require("net");
 const app = express();
 
 // Define the ports of your backend servers
-const serverPorts = [3001, 3002]; // Example port numbers
-let currentServerIndex = 0; // Initialize the index to 0
+const postServerPort = 3002;
+const userServerPort = 3003;
+const followServerPort = 3004;
 
-// Create an array to hold the proxy server instances
-const proxyServers = [];
+// Create proxy instances for User and Post services
+const userProxy = httpProxy.createProxyServer({
+  target: `http://localhost:${userServerPort}`,
+  ws: true, // Enable WebSocket support if needed
+});
 
-// Create a proxy for each server
-for (const port of serverPorts) {
-  const proxy = httpProxy.createProxyServer({
-    target: `http://localhost:${port}`,
-    ws: true, // Enable WebSocket support if needed
-  });
-  proxyServers.push({ proxy, port });
-}
+const postProxy = httpProxy.createProxyServer({
+  target: `http://localhost:${postServerPort}`,
+  ws: true, // Enable WebSocket support if needed
+});
+
+const followProxy = httpProxy.createProxyServer({
+  target: `http://localhost:${followServerPort}`,
+  ws: true, // Enable WebSocket support if needed
+});
 
 // Function to check if a server is available on a given port
 function isServerAvailable(port, callback) {
@@ -35,32 +41,31 @@ function isServerAvailable(port, callback) {
 
 // Create the main load balancer
 const balancer = http.createServer((req, res) => {
-  let availableServer = null;
+  // Extract the service route based on the request URL
+  const serviceRoute = req.url.split("/")[1];
 
-  // Iterate through the proxyServers array in a round-robin fashion
-  for (let i = 0; i < proxyServers.length; i++) {
-    const nextServerIndex = (currentServerIndex + i) % proxyServers.length;
-    const server = proxyServers[nextServerIndex];
-
-    // Check if the server is available
-    isServerAvailable(server.port, (available) => {
-      if (available) {
-        availableServer = server;
-        console.log("Using server on port", server.port);
-        availableServer.proxy.web(req, res);
-        currentServerIndex = nextServerIndex;
-      }
-    });
-
-    if (availableServer) {
-      break; // Exit the loop once an available server is found
-    }
-  }
-
-  // If no available servers are found, respond with an error
-  if (!availableServer) {
-    console.log("No available server");
-    // res.status(500).json({ error: "No available server" });
+  if (
+    serviceRoute === "userById" ||
+    serviceRoute === "users" ||
+    serviceRoute === "updateUser"
+  ) {
+    // User service route
+    userProxy.web(req, res);
+  } else if (
+    serviceRoute === "posts" ||
+    serviceRoute === "postsByUserId" ||
+    serviceRoute === "postsByPostId"
+  ) {
+    // Post service route
+    postProxy.web(req, res);
+  } else if (
+    serviceRoute === "addFollowing" ||
+    serviceRoute === "removeFollowing"
+  ) {
+    followProxy.web(req, res);
+  } else {
+    // Handle other routes or unknown routes here
+    console.log("Server not found");
   }
 });
 
