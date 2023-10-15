@@ -6,40 +6,8 @@ import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 function UserTag({ user }) {
-  const [isCurrentUser, setIsCurrentUser] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (auth.currentUser && user.email === auth.currentUser.email) {
-      setIsCurrentUser(true);
-    }
-  }, [auth.currentUser, user]);
-
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/userById", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({ userId: auth.currentUser.uid }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const json = await response.json();
-      json[0].following.push(user.uid);
-      const updatedUser = await fetch("http://localhost:8080/userById", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({ json }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
   return (
     <Wrapper onClick={() => navigate("/profile", { state: { user: user } })}>
       <UserDetails>

@@ -1,24 +1,59 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate, useLocation } from "react-router-dom";
 import UserTag from "./UserTag";
 import { useUser } from "../context/UserContext";
 import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
-function UsersSearchResult() {
+function FollowersList() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { userId, showFollowers } = location.state || {};
   const [userList, setUserList] = useState([]);
-  const { user: currentUser } = useUser();
+  console.log(userId, showFollowers);
+
   useEffect(() => {
     // Get all users
     const fetchUserList = async () => {
       try {
-        const response = await fetch("http://localhost:8080/users");
+        const response = await fetch("http://localhost:8080/userById", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({ userId: userId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const json = await response.json();
-        setUserList(json);
+        let listOfFollow = [];
+        if (showFollowers) listOfFollow = json.followers;
+        else listOfFollow = json.following;
+        const listOfUser = [...userList];
+        for (let i = 0; i < listOfFollow.length; i++) {
+          try {
+            const anotherUserResponse = await fetch(
+              "http://localhost:8080/userById",
+              {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify({ userId: listOfFollow[i] }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            const anotherUser = await anotherUserResponse.json();
+            listOfUser.push(anotherUser);
+          } catch (error) {
+            console.log("error", error);
+          }
+        }
+        setUserList([...userList, ...listOfUser]);
       } catch (error) {
         console.log("error", error);
       }
     };
     fetchUserList();
-  }, [currentUser]);
+  }, []);
 
   return (
     <Wrapper>
@@ -91,4 +126,4 @@ const HomePageButton = styled(ProfilePageButtons)`
   }
 `;
 
-export default UsersSearchResult;
+export default FollowersList;

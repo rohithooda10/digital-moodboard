@@ -13,50 +13,6 @@ function Profile() {
   const [alreadyFollowing, setAlreadyFollowing] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const user = location.state ? location.state.user : auth.currentUser;
-  function removeItemOnce(arr, value) {
-    var index = arr.indexOf(value);
-    if (index > -1) {
-      arr.splice(index, 1);
-    }
-    return arr;
-  }
-
-  const follow = async () => {
-    try {
-      const updatedUser = await fetch("http://localhost:8080/addFollowing", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          userId: loggedInUser.userId,
-          followeeId: user.userId,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      setAlreadyFollowing(!alreadyFollowing);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
-  const unfollow = async () => {
-    try {
-      const updatedUser = await fetch("http://localhost:8080/removeFollowing", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          userId: loggedInUser.userId,
-          followeeId: user.userId,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      setAlreadyFollowing(!alreadyFollowing);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
   useEffect(() => {
     const findLoggedInUser = async () => {
       try {
@@ -122,6 +78,63 @@ function Profile() {
     }
   }, [user, loggedInUser]);
 
+  function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
+  }
+
+  const follow = async () => {
+    try {
+      const updatedUser = await fetch("http://localhost:8080/addFollowing", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          followeeId: user.userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setAlreadyFollowing(!alreadyFollowing);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const unfollow = async () => {
+    try {
+      const updatedUser = await fetch("http://localhost:8080/removeFollowing", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          followeeId: user.userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setAlreadyFollowing(!alreadyFollowing);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const showFollowers = () => {
+    const id = !location.state ? user.uid : user.userId;
+    navigate("/followerslist", {
+      state: { userId: id, showFollowers: true },
+    });
+  };
+  const showFollowing = () => {
+    const id = !location.state ? user.uid : user.userId;
+    navigate("/followerslist", {
+      state: { userId: id, showFollowers: false },
+    });
+  };
+
   const handleLogout = async (e) => {
     signOut(auth)
       .then(() => {
@@ -171,8 +184,20 @@ function Profile() {
               </FollowersButton>
             )}
             <ButtonsHolder>
-              <FollowersButton>Followers</FollowersButton>
-              <FollowingButton>Following</FollowingButton>
+              <FollowersButton
+                onClick={() => {
+                  showFollowers();
+                }}
+              >
+                Followers
+              </FollowersButton>
+              <FollowingButton
+                onClick={() => {
+                  showFollowing();
+                }}
+              >
+                Following
+              </FollowingButton>
             </ButtonsHolder>
           </ProfileCard>
           {/* <PostsTypeButton>

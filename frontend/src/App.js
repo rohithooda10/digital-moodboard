@@ -12,6 +12,7 @@ import UsersSearchResult from "./components/UsersSearchResult";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { UserProvider } from "./context/UserContext";
+import FollowersList from "./components/FollowersList";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -195,6 +196,11 @@ function App() {
               exact
               path="/userssearchresult"
               element={!user ? <LoginPage /> : <UsersSearchResult />}
+            />
+            <Route
+              exact
+              path="/followerslist"
+              element={!user ? <LoginPage /> : <FollowersList />}
             />
           </Routes>
         </BrowserRouter>
