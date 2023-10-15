@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema({
   likedPosts: [String],
   createdPosts: [String],
   searchHistory: [{ term: String, searchAt: Date }],
+  newsFeed: [String],
 });
 
 const User = new mongoose.model("users", UserSchema);

@@ -19,47 +19,65 @@ const args = process.argv.slice(2);
 const port = args.length > 0 ? parseInt(args[0]) : process.env.PORT || 3004;
 
 // ---------------------------------------------------------- Kafka producer setup START----------------------------------------------------------
-// const kafka = require("kafka-node");
-// const Consumer = kafka.Consumer;
-// const client = new kafka.KafkaClient({ kafkaHost: "your-kafka-broker-host" }); // Replace with your Kafka broker details
-// const consumer = new Consumer(client, [{ topic: "new-post-topic" }], {
-//   autoCommit: true,
-//   groupId: "follower-service-group", // A unique group ID for the consumer
-// });
+const { Kafka } = require("kafkajs");
 
-// consumer.on("message", async (message) => {
-//   const newPostData = JSON.parse(message.value);
+// Create a Kafka instance with your local broker(s) configuration
+const kafka = new Kafka({
+  clientId: "my-app",
+  brokers: ["localhost:9092"], // Update with your local Kafka broker details
+});
 
-//   // Handle the new post event by updating followers' news feeds
-//   await updateUserNewsFeeds(newPostData.userId, newPostData.postId);
-// });
+// Create a Kafka consumer
+const consumer = kafka.consumer({ groupId: "follower-service-group" }); // A unique group ID for the consumer
 
-// consumer.on("error", (err) => {
-//   console.error("Error in Kafka Consumer: " + err);
-// });
+const run = async () => {
+  // Connect the consumer to the Kafka cluster
+  await consumer.connect();
 
-// // Function to update followers' news feeds
-// async function updateUserNewsFeeds(userId, postId) {
-//   // Retrieve followers of the user
-//   const user = await User.findOne({ userId });
-//   if (!user) {
-//     console.error("User not found:", userId);
-//     return;
-//   }
+  // Subscribe to the topic(s) you want to consume from
+  await consumer.subscribe({ topic: "test-posts" }); // Update with your topic name
 
-//   const followers = user.followers;
+  // Start consuming messages
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      const newPostData = JSON.parse(message.value.toString());
+      console.log("CONSUMED", newPostData);
+      // Handle the new post event by updating followers' news feeds
+      await updateUserNewsFeeds(newPostData.userId, newPostData.postId);
+    },
+  });
+};
 
-//   // Update each follower's news feed with the new post ID
-//   for (const followerId of followers) {
-//     const follower = await User.findOne({ userId: followerId });
-//     if (follower) {
-//       follower.newsFeed.push(postId);
-//       await follower.save();
-//     } else {
-//       console.error("Follower not found:", followerId);
-//     }
-//   }
-// }
+consumer.on("consumer.crash", () => {
+  // Handle consumer crashes or errors here
+  console.error("Consumer crashed.");
+});
+
+run().catch(console.error);
+
+// Function to update followers' news feeds
+async function updateUserNewsFeeds(userId, postId) {
+  // Retrieve followers of the user
+  const user = await User.findOne({ userId });
+  if (!user) {
+    console.error("User not found:", userId);
+    return;
+  }
+  console.log("FOUND USER:", user);
+  const followers = user.followers;
+
+  // Update each follower's news feed with the new post ID
+  for (const followerId of followers) {
+    const follower = await User.findOne({ userId: followerId });
+    if (follower) {
+      follower.newsFeed.push(postId);
+      await follower.save();
+    } else {
+      console.error("Follower not found:", followerId);
+    }
+  }
+}
+
 // ---------------------------------------------------------- Kafka producer setup END----------------------------------------------------------
 
 // Update user following and follower of the user begin followed and return the updated object
