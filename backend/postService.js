@@ -18,7 +18,7 @@ mongoose.connect(mongodbURL, {
 const args = process.argv.slice(2);
 const port = args.length > 0 ? parseInt(args[0]) : process.env.PORT || 3002;
 
-// ---------------------------------------------------------- Kafka producer setup START----------------------------------------------------------
+// ---------------------------------------------------------- Kafka producer setup ----------------------------------------------------------
 
 const { Kafka } = require("kafkajs");
 const kafka = new Kafka({

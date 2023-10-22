@@ -89,21 +89,22 @@ function App() {
       // Define a function to fetch posts for the logged-in user's following
       const fetchPosts = async () => {
         if (loggedInUser) {
-          const followingIds = loggedInUser.following;
+          const newfeedpostIds = loggedInUser.newsFeed;
+          console.log("Getting feed...", newfeedpostIds);
           try {
             const response = await fetch(
-              "http://localhost:8080/postsByUserId",
+              "http://localhost:8080/postsByPostId",
               {
                 method: "POST",
                 mode: "cors",
-                body: JSON.stringify({ userId: followingIds }),
+                body: JSON.stringify({ postIds: newfeedpostIds }),
                 headers: {
                   "Content-Type": "application/json",
                 },
               }
             );
             const json = await response.json();
-            console.log("Following posts:", json);
+            console.log("news feed posts:", json);
 
             // Combine the new posts with the posts from the logged-in user's following
             const combinedPosts = [...posts, ...json];

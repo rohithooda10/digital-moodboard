@@ -9,6 +9,7 @@ function Profile() {
   const navigate = useNavigate();
   const auth = getAuth();
   const location = useLocation();
+  const [postType, setPostType] = useState(true); // true = created, false = saved
   const [posts, setPosts] = useState([]);
   const [alreadyFollowing, setAlreadyFollowing] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
@@ -75,6 +76,24 @@ function Profile() {
         }
       };
       if (loggedInUser) findLikedPosts();
+      const findSavedPosts = async () => {
+        const savedPostIds = !location.state ? loggedInUser.savedPosts : [];
+        try {
+          const response = await fetch("http://localhost:8080/postsByPostId", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({ postIds: savedPostIds }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const mysaved = await response.json();
+          setPosts((prevPosts) => [...prevPosts, ...mysaved]);
+        } catch (error) {
+          console.log("error", error);
+        }
+      };
+      if (loggedInUser) findSavedPosts();
     }
   }, [user, loggedInUser]);
 
@@ -298,6 +317,7 @@ const FollowingButton = styled(ProfileButtons)`
   }
   box-shadow: 1px 1px 10px 1px #e5e5e5;
 `;
+
 const PostsTypeButton = styled(ProfileButtons)`
   align-self: center;
   justify-content: center;

@@ -63,7 +63,10 @@ async function updateUserNewsFeeds(userId, postId) {
     console.error("User not found:", userId);
     return;
   }
-  console.log("FOUND USER:", user);
+  // Add PostId to createdPosts of user too
+  user.createdPosts.push(postId);
+  await user.save(); // Save the user object with the updated createdPosts array
+
   const followers = user.followers;
 
   // Update each follower's news feed with the new post ID
@@ -113,6 +116,12 @@ app.post("/addFollowing", async (req, res) => {
         .json("No user found with the specified followeeId.");
     }
 
+    // Add postIds from the user being followed's "createdPosts" to our "newsFeed"
+    updatedUser.newsFeed = updatedUser.newsFeed.concat(
+      updatedFolloweeUser.createdPosts
+    );
+    await updatedUser.save();
+
     console.log("Successfully updated the following and followers!");
     return res.json(updatedUser);
   } catch (err) {
@@ -152,6 +161,12 @@ app.post("/removeFollowing", async (req, res) => {
       console.log("No user found with the specified userId.");
       return res.status(404).json("No user found with the specified userId.");
     }
+
+    // Remove postIds of former following from the user' newsFeed
+    updatedUser.newsFeed = updatedUser.newsFeed.filter(
+      (postId) => !updatedFolloweeUser.createdPosts.includes(postId)
+    );
+    await updatedUser.save();
 
     console.log("Successfully removed the following relationship!");
     return res.json(updatedUser);

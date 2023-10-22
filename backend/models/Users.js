@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
   followers: [String],
   following: [String],
   likedPosts: [String],
+  savedPosts: [String],
   createdPosts: [String],
   searchHistory: [{ term: String, searchAt: Date }],
   newsFeed: [String],

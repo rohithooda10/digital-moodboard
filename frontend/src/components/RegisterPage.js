@@ -56,7 +56,7 @@ function RegisterPage() {
           followers: [],
           following: [],
           likedPosts: [],
-          // savedPosts: [],
+          savedPosts: [],
           createdPosts: [],
           searchHistory: [],
         };

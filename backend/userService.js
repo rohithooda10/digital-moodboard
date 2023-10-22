@@ -53,7 +53,7 @@ app.post("/updateUser", async (req, res) => {
         followers: req.body.followers,
         following: req.body.following,
         likedPosts: req.body.likedPosts,
-        // savedPosts: req.body.savedPosts,
+        savedPosts: req.body.savedPosts,
         createdPosts: req.body.createdPosts,
         searchHistory: req.body.searchHistory,
       },
@@ -73,5 +73,5 @@ app.post("/updateUser", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Post Service running on port ${port}`);
+  console.log(`User Service running on port ${port}`);
 });

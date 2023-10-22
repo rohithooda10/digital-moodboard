@@ -3,12 +3,15 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { IconButton } from "@mui/material";
 import { signOut, getAuth, onAuthStateChanged } from "firebase/auth";
 function Post({ post }) {
   const navigate = useNavigate();
   const auth = getAuth();
   const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const likeThePost = async () => {
     loggedInUser.likedPosts.push(post.postId);
@@ -25,6 +28,25 @@ function Post({ post }) {
         },
       });
       setLiked(!liked);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const saveThePost = async () => {
+    loggedInUser.savedPosts.push(post.postId);
+    try {
+      const updatedUser = await fetch("http://localhost:8080/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          savedPosts: loggedInUser.savedPosts,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setSaved(!saved);
     } catch (error) {
       console.log("error", error);
     }
@@ -56,6 +78,26 @@ function Post({ post }) {
       console.log("error", error);
     }
   };
+  const unsaveThePost = async () => {
+    const arr = removeItemOnce(loggedInUser.savedPosts, post.postId);
+    loggedInUser.savedPosts = arr;
+    try {
+      const updatedUser = await fetch("http://localhost:8080/updateUser", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          userId: loggedInUser.userId,
+          savedPosts: loggedInUser.savedPosts,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setSaved(!saved);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
   useEffect(() => {
     const findLoggedInUser = async () => {
       try {
@@ -70,7 +112,8 @@ function Post({ post }) {
         const json = await response.json();
         const loggedInUser = json;
         setLoggedInUser(loggedInUser);
-        await setLiked(loggedInUser.likedPosts.includes(post.postId));
+        setLiked(loggedInUser.likedPosts.includes(post.postId));
+        setSaved(loggedInUser.savedPosts.includes(post.postId));
       } catch (error) {
         console.log("error", error);
       }
@@ -89,17 +132,30 @@ function Post({ post }) {
           }}
         />
         {post.postType && post.userId != auth.currentUser.uid && (
-          <LikeButton
-            onClick={() => {
-              if (!liked) likeThePost();
-              else unlikeThePost();
-            }}
-          >
-            <IconButton>
-              {!liked && <FavoriteBorderIcon style={{ color: "white" }} />}
-              {liked && <FavoriteIcon style={{ color: "white" }} />}
-            </IconButton>
-          </LikeButton>
+          <>
+            <LikeButton
+              onClick={() => {
+                if (!liked) likeThePost();
+                else unlikeThePost();
+              }}
+            >
+              <IconButton>
+                {!liked && <FavoriteBorderIcon style={{ color: "white" }} />}
+                {liked && <FavoriteIcon style={{ color: "white" }} />}
+              </IconButton>
+            </LikeButton>
+            <SaveButton
+              onClick={() => {
+                if (!saved) saveThePost();
+                else unsaveThePost();
+              }}
+            >
+              <IconButton>
+                {!saved && <BookmarkBorderIcon style={{ color: "white" }} />}
+                {saved && <BookmarkIcon style={{ color: "white" }} />}
+              </IconButton>
+            </SaveButton>
+          </>
         )}
       </Container>
     </Wrapper>
@@ -112,6 +168,12 @@ const Wrapper = styled.div`
 const LikeButton = styled.div`
   position: absolute;
   left: 0;
+  bottom: 0;
+  z-index: 4;
+`;
+const SaveButton = styled.div`
+  position: absolute;
+  right: 0;
   bottom: 0;
   z-index: 4;
 `;
