@@ -66,11 +66,13 @@ function App() {
     const getNewPosts = async () => {
       let promises = [];
       let postData = [];
-      const userSearchHistory = loggedInUser.searchHistory;
-      userSearchHistory.sort((a, b) => b.searchAt - a.searchAt);
-      let terms = userSearchHistory.slice(0, 5).map((entry) => entry.term);
-
-      // let terms = ["ocean", "dogs"];
+      let userRecommendations = [];
+      if (loggedInUser) userRecommendations = loggedInUser.recommendations;
+      // userRecommendations.sort((a, b) => b.searchAt - a.searchAt);
+      // let terms = userRecommendations.slice(0, 5).map((entry) => entry.term);
+      console.log(loggedInUser);
+      let terms = userRecommendations.slice(-5);
+      if (terms.length == 0) terms = ["ocean", "dogs"];
       terms.forEach((term) => {
         promises.push(
           getImages(term).then((res) => {
@@ -166,13 +168,8 @@ function App() {
       });
       setNewPosts(newPosts);
 
-      // Create a search history entry
-      const searchHistoryEntry = {
-        term: searchTerm,
-        searchAt: new Date(), // Current timestamp
-      };
-
-      loggedInUser.searchHistory.push(searchHistoryEntry);
+      // add search to recommendations
+      loggedInUser.recommendations.push(searchTerm);
 
       // Save the updated user to the server
       saveUpdatedUser(loggedInUser);

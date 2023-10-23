@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 } from "uuid";
 function AddNewPost() {
   const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
   const [description, setDescription] = useState("");
   const [imageUpload, setImageUpload] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -52,6 +53,7 @@ function AddNewPost() {
         comments: [],
         postImageUrl: downloadURL,
         postType: "Created",
+        tags: tags.split(" "),
       };
       try {
         const response = await fetch("http://localhost:8080/posts", {
@@ -132,6 +134,12 @@ function AddNewPost() {
               placeholder="Description"
               onChange={(evnt) => setDescription(evnt.target.value)}
               value={description}
+            />
+            <input
+              type="text"
+              placeholder="Tags (space separated)"
+              onChange={(evnt) => setTags(evnt.target.value)}
+              value={tags}
             />
             <ButtonsHolder>
               <SaveButton type="submit">Save</SaveButton>

@@ -9,6 +9,7 @@ const PostSchema = new mongoose.Schema({
   description: String,
   postImageUrl: String,
   postType: String, // created or saved
+  tags: [String],
 });
 
 const Post = new mongoose.model("posts", PostSchema);

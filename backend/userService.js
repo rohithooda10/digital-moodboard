@@ -56,6 +56,7 @@ app.post("/updateUser", async (req, res) => {
         savedPosts: req.body.savedPosts,
         createdPosts: req.body.createdPosts,
         searchHistory: req.body.searchHistory,
+        recommendations: req.body.recommendations,
       },
       { new: true } // This option returns the updated document
     );

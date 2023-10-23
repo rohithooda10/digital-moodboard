@@ -15,6 +15,7 @@ function Post({ post }) {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const likeThePost = async () => {
     loggedInUser.likedPosts.push(post.postId);
+    loggedInUser.recommendations.push(...post.tags);
     try {
       const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
@@ -22,6 +23,7 @@ function Post({ post }) {
         body: JSON.stringify({
           userId: loggedInUser.userId,
           likedPosts: loggedInUser.likedPosts,
+          recommendations: loggedInUser.recommendations,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -34,6 +36,7 @@ function Post({ post }) {
   };
   const saveThePost = async () => {
     loggedInUser.savedPosts.push(post.postId);
+    loggedInUser.recommendations.push(...post.tags);
     try {
       const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
@@ -41,6 +44,7 @@ function Post({ post }) {
         body: JSON.stringify({
           userId: loggedInUser.userId,
           savedPosts: loggedInUser.savedPosts,
+          recommendations: loggedInUser.recommendations,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -58,9 +62,20 @@ function Post({ post }) {
     }
     return arr;
   }
+  function removeMultiple(arr, value) {
+    for (const element of value) {
+      const index = arr.indexOf(element);
+      if (index !== -1) {
+        arr.splice(index, 1);
+      }
+    }
+    return arr;
+  }
   const unlikeThePost = async () => {
     const arr = removeItemOnce(loggedInUser.likedPosts, post.postId);
     loggedInUser.likedPosts = arr;
+    const newRec = removeMultiple(loggedInUser.recommendations, post.tags);
+    loggedInUser.recommendations = newRec;
     try {
       const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
@@ -68,6 +83,7 @@ function Post({ post }) {
         body: JSON.stringify({
           userId: loggedInUser.userId,
           likedPosts: loggedInUser.likedPosts,
+          recommendations: loggedInUser.recommendations,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -81,6 +97,8 @@ function Post({ post }) {
   const unsaveThePost = async () => {
     const arr = removeItemOnce(loggedInUser.savedPosts, post.postId);
     loggedInUser.savedPosts = arr;
+    const newRec = removeMultiple(loggedInUser.recommendations, post.tags);
+    loggedInUser.recommendations = newRec;
     try {
       const updatedUser = await fetch("http://localhost:8080/updateUser", {
         method: "POST",
@@ -88,6 +106,7 @@ function Post({ post }) {
         body: JSON.stringify({
           userId: loggedInUser.userId,
           savedPosts: loggedInUser.savedPosts,
+          recommendations: loggedInUser.recommendations,
         }),
         headers: {
           "Content-Type": "application/json",

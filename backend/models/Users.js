@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema({
   likedPosts: [String],
   savedPosts: [String],
   createdPosts: [String],
-  searchHistory: [{ term: String, searchAt: Date }],
+  // searchHistory: [{ term: String, searchAt: Date }],
+  recommendations: [String],
   newsFeed: [String],
 });
 
