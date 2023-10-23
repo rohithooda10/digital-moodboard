@@ -66,7 +66,11 @@ function App() {
     const getNewPosts = async () => {
       let promises = [];
       let postData = [];
-      let terms = ["ocean", "dogs"];
+      const userSearchHistory = loggedInUser.searchHistory;
+      userSearchHistory.sort((a, b) => b.searchAt - a.searchAt);
+      let terms = userSearchHistory.slice(0, 5).map((entry) => entry.term);
+
+      // let terms = ["ocean", "dogs"];
       terms.forEach((term) => {
         promises.push(
           getImages(term).then((res) => {
@@ -75,16 +79,9 @@ function App() {
           })
         );
       });
+
       // Wait for all promises to resolve
       await Promise.all(promises);
-
-      // Randomize the postData array
-      // postData.sort(function (a, b) {
-      //   return 0.5 - Math.random();
-      // });
-
-      // Set new posts after randomization
-      setNewPosts(postData);
 
       // Define a function to fetch posts for the logged-in user's following
       const fetchPosts = async () => {
@@ -107,8 +104,8 @@ function App() {
             console.log("news feed posts:", json);
 
             // Combine the new posts with the posts from the logged-in user's following
-            const combinedPosts = [...posts, ...json];
-
+            const combinedPosts = [...postData, ...json];
+            console.log("combined", combinedPosts);
             // Randomize the combinedPosts array
             combinedPosts.sort(function (a, b) {
               return 0.5 - Math.random();
@@ -129,8 +126,29 @@ function App() {
     };
 
     // Fetch new posts based on search terms
-    getNewPosts();
+    if (loggedInUser) getNewPosts();
   }, [loggedInUser]);
+
+  const saveUpdatedUser = async (updatedUserData) => {
+    try {
+      const response = await fetch("http://localhost:8080/updateUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUserData),
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        console.log("User updated successfully:", updatedUser);
+      } else {
+        console.log("Failed to update user.");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
 
   const getImages = (searchTerm) => {
     return unsplash.get("https://api.unsplash.com/search/photos", {
@@ -147,6 +165,17 @@ function App() {
         return 0.5 - Math.random();
       });
       setNewPosts(newPosts);
+
+      // Create a search history entry
+      const searchHistoryEntry = {
+        term: searchTerm,
+        searchAt: new Date(), // Current timestamp
+      };
+
+      loggedInUser.searchHistory.push(searchHistoryEntry);
+
+      // Save the updated user to the server
+      saveUpdatedUser(loggedInUser);
     });
   };
 
