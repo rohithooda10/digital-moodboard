@@ -1,7 +1,5 @@
 # Digital Moodboard Platform
 
-![Moodboard](https://your-image-url-here)
-
 Digital Moodboard is an advanced web application designed to help users create and curate inspiring collections of images and content to enhance their creative projects and express their emotions. This project utilizes the MERN stack (MongoDB, Express, React, Node.js) to provide a seamless user experience. Additionally, it leverages Google Cloud Platform for authentication, image storage, Kafka for asynchronous newsfeed management, and Unsplash API for a vast selection of inspirational images.
 
 ## Table of Contents
