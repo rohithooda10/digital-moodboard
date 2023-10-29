@@ -2,6 +2,15 @@
 
 Digital Moodboard is an advanced web application designed to help users create and curate inspiring collections of images and content to enhance their creative projects and express their emotions. This project utilizes the MERN stack (MongoDB, Express, React, Node.js) to provide a seamless user experience. Additionally, it leverages Google Cloud Platform for authentication, image storage, Kafka for asynchronous newsfeed management, and Unsplash API for a vast selection of inspirational images.
 
+## Snapshots
+<img width="1417" alt="1" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/21b3b912-48cf-4389-a53c-53a93ce29b67">
+<img width="1423" alt="2" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/9fb30431-ea4a-4b1f-b23f-7f71efa329ff">
+<img width="1423" alt="3" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/12fa712e-c08d-463a-9045-9a080839c916">
+<img width="1423" alt="4" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/7ff4946f-cb22-48b2-a481-648ec12c412a">
+<img width="1423" alt="5" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/6c145a1a-df1e-4e8d-8347-6a6f2010399b">
+<img width="1423" alt="6" src="https://github.com/rohithooda10/digital-moodboard/assets/109358642/4f27d8f6-5aea-4ba4-b396-6b96af5f4e6e">
+
+
 ## Table of Contents
 
 - [Features](#features)
@@ -60,7 +69,7 @@ Before running the project, make sure you have the following components set up:
 - ZooKeeper
 
 ## Getting Started
-
+(Note: Firebase.js and unsplash.js files are not tracked for security purpose)
 Follow these steps to run the Digital Moodboard Platform:
 
 Ensure that Kafka and ZooKeeper are running before starting the backend services.
