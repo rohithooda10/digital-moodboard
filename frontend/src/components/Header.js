@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import PinterestIcon from "@mui/icons-material/Pinterest";
+import CameraIcon from "@mui/icons-material/Camera";
 import SearchIcon from "@mui/icons-material/Search";
 import FaceIcon from "@mui/icons-material/Face";
 import { IconButton } from "@mui/material";
@@ -27,7 +27,7 @@ function Header({ onSearch, onUserSearch }) {
   return (
     <Wrapper>
       <LogoWrapper>
-        <PinterestIcon
+        <CameraIcon
           onClick={() => {
             navigate("/");
           }}

@@ -111,9 +111,9 @@ function FullScreenPost() {
                 <CommentText>Nice pic deer!</CommentText>
               </CommentContent>
             </Comment> */}
-            <Comment
+            {/* <Comment
               comment={{ username: "Ankur Rai", content: "Nice pic deer!" }}
-            />
+            /> */}
           </Comments>
         </PinText>
       </PinContainer>
