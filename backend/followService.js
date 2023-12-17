@@ -21,35 +21,32 @@ const port = args.length > 0 ? parseInt(args[0]) : process.env.PORT || 3004;
 // ---------------------------------------------------------- Kafka producer setup START----------------------------------------------------------
 const { Kafka } = require("kafkajs");
 
-// Create a Kafka instance with your local broker(s) configuration
+// Create a Kafka instance
 const kafka = new Kafka({
   clientId: "my-app",
-  brokers: ["localhost:9092"], // Update with your local Kafka broker details
+  brokers: ["localhost:9092"],
 });
 
 // Create a Kafka consumer
-const consumer = kafka.consumer({ groupId: "follower-service-group" }); // A unique group ID for the consumer
+const consumer = kafka.consumer({ groupId: "follower-service-group" });
 
 const run = async () => {
   // Connect the consumer to the Kafka cluster
   await consumer.connect();
 
-  // Subscribe to the topic(s) you want to consume from
-  await consumer.subscribe({ topic: "test-posts" }); // Update with your topic name
-
+  // Subscribe to the topic
+  await consumer.subscribe({ topic: "test-posts" });
   // Start consuming messages
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const newPostData = JSON.parse(message.value.toString());
       console.log("CONSUMED", newPostData);
-      // Handle the new post event by updating followers' news feeds
       await updateUserNewsFeeds(newPostData.userId, newPostData.postId);
     },
   });
 };
 
 consumer.on("consumer.crash", () => {
-  // Handle consumer crashes or errors here
   console.error("Consumer crashed.");
 });
 
@@ -86,7 +83,6 @@ async function updateUserNewsFeeds(userId, postId) {
 // Update user following and follower of the user begin followed and return the updated object
 app.post("/addFollowing", async (req, res) => {
   try {
-    // Update the user's "following" list
     const updatedUser = await User.findOneAndUpdate(
       { userId: req.body.userId },
       {
